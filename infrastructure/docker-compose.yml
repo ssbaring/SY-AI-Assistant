@@ -1,0 +1,18 @@
+# 로컬 개발 전용 구성이다. app/app 계정과 이 설정은 내 PC의 개발용 DB에서만 사용하며,
+# 운영·공용 서버에는 절대 사용하지 않는다. 포트는 이 PC(127.0.0.1)에서만 접속되도록 연다.
+services:
+  db:
+    image: postgres:16
+    container_name: sy_holdings_dev_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: sy_holdings_dev
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

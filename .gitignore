@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# 로그
+*.log
+
+# 환경변수 / 비밀값
+.env
+*.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node (admin-web 개발 시)
+node_modules/
+
+# Flutter (mobile 개발 시)
+.dart_tool/
+build/
