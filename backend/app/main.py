@@ -2,11 +2,13 @@ import logging
 
 from fastapi import FastAPI
 
+from app.api.v1.router import api_router
 from app.core.database import check_connection
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SY Holdings Factory Assistant API")
+app.include_router(api_router)
 
 
 @app.get("/health")

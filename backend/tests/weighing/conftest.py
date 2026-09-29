@@ -67,6 +67,17 @@ def migrated_schema(test_database):
 
 
 @pytest.fixture
+def api_client(migrated_schema):
+    """조회 API 테스트용 TestClient. 계근 스키마가 준비된 뒤에만 만든다."""
+
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    return TestClient(app)
+
+
+@pytest.fixture
 def raw_conn(migrated_schema):
     """psycopg 원시 연결. 트리거·동시성 등 ORM을 거치지 않는 검증에 쓴다."""
 
