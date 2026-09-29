@@ -4,7 +4,11 @@
 
 ## 현재 진행 단계
 
-**0단계 (부트스트랩) 완료** — 백엔드 프로젝트 뼈대(FastAPI, DB 연결), 로컬 개발 DB(Docker PostgreSQL), 헬스체크 테스트까지 마쳤다. 아직 데이터 모델, 업무 API, OpenClaw 연결은 없음.
+- **0단계 (부트스트랩) 완료** — 백엔드 프로젝트 뼈대(FastAPI, DB 연결), 로컬 개발 DB(Docker PostgreSQL), 헬스체크 테스트.
+- **1단계 (계근기록 스키마·마이그레이션) 완료** — `weighing_records`/`weighing_record_history` 테이블, 계근번호 자동 채번, 삭제 금지·취소 후 불변 트리거. 자세한 내용은 [documents/weighing-record-schema.md](documents/weighing-record-schema.md) 참고.
+- **2단계 (계근기록 조회 API) 완료** — `GET /api/v1/weighing-records` 목록/상세 조회 3종. 자세한 내용은 [documents/weighing-query-api.md](documents/weighing-query-api.md) 참고.
+- 전체 pytest **73개 통과**.
+- **다음 단계**: 3단계 — OpenClaw 도구 연결(factory-operations 비서가 조회 API를 호출하도록 연결).
 
 ## 사전 준비 상태 (이 PC 기준)
 
@@ -14,8 +18,8 @@
 | 운영·개발 의존성 (`requirements.txt`, `requirements-dev.txt`) | 구성 완료 (운영 의존성은 버전 고정) |
 | Git | 설치됨 |
 | Docker Desktop / PostgreSQL 16 컨테이너 | 구성 완료 (`127.0.0.1:5432`에서만 접속) |
-| pytest | 6개 통과 |
-| 0단계 | 완료 |
+| pytest | 73개 통과 |
+| 0~2단계 | 완료 |
 
 ## PostgreSQL 준비 (Docker 방식, 사용자 직접 설치 필요)
 
@@ -50,7 +54,19 @@ copy .env.example .env
 
 `.env`는 `.gitignore`에 포함되어 커밋되지 않는다. 실행 후 `http://127.0.0.1:8000/health`(서버 상태), `http://127.0.0.1:8000/health/db`(DB 연결 상태)로 확인한다.
 
-`requirements.txt`는 서버 실행에 필요한 라이브러리, `requirements-dev.txt`는 여기에 테스트 도구(pytest, httpx)를 더한 개발용 목록이다.
+`requirements.txt`는 서버 실행에 필요한 라이브러리, `requirements-dev.txt`는 여기에 테스트 도구(pytest, httpx2)를 더한 개발용 목록이다.
+
+## API 엔드포인트
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/health` | 서버 상태 |
+| GET | `/health/db` | DB 연결 상태 |
+| GET | `/api/v1/weighing-records` | 계근기록 목록 조회(필터·정렬·페이지네이션) |
+| GET | `/api/v1/weighing-records/ticket/{ticket_no}` | 계근번호로 상세 조회 |
+| GET | `/api/v1/weighing-records/{record_id}` | ID로 상세 조회 |
+
+조회 API의 필터·정렬·날짜 정책은 [documents/weighing-query-api.md](documents/weighing-query-api.md)에 정리되어 있다.
 
 ## 로컬 개발 전용 계정 안내
 
@@ -67,4 +83,4 @@ cd backend
 
 ## 다음 단계
 
-1단계(계근기록 최소 데이터 모델 + 마이그레이션)로 진행한다.
+3단계(OpenClaw 도구 연결)로 진행한다.

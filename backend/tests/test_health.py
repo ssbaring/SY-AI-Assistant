@@ -17,16 +17,27 @@ def unreachable_db(monkeypatch):
     import app.core.database as database
     from app.core.config import settings
 
+    # reload()는 모듈을 다시 실행해 database.engine을 새 Engine 객체로 바꾼다.
+    # 이전 Engine은 더 이상 어디서도 참조되지 않지만, 풀에 커넥션이 남아
+    # 있으면 dispose 없이는 인터프리터 종료 시 ResourceWarning을 낸다.
+    # reload 전마다(정상 -> 가짜 호스트, 가짜 호스트 -> 정상) 그 시점의
+    # 현재 engine을 먼저 dispose한다.
+    database.engine.dispose()
     monkeypatch.setattr(
         settings,
         "database_url",
         f"postgresql+psycopg://{LEAK_USER}:{LEAK_PASSWORD}@{LEAK_HOST}:{LEAK_PORT}/{LEAK_DB}",
     )
-    # reload는 같은 모듈 딕셔너리를 다시 채우므로 app.main.check_connection도 새 engine을 쓰게 된다.
-    importlib.reload(database)
-    yield
-    monkeypatch.undo()
-    importlib.reload(database)
+    try:
+        # reload는 같은 모듈 딕셔너리를 다시 채우므로 app.main.check_connection도 새 engine을 쓰게 된다.
+        importlib.reload(database)
+        try:
+            yield
+        finally:
+            database.engine.dispose()
+    finally:
+        monkeypatch.undo()
+        importlib.reload(database)
 
 
 def test_health_ok(client):

@@ -136,9 +136,7 @@ CANCELED    --------> (불가, 종결 상태)
 
 ## 9. 다음 단계에서 추가할 항목
 
-- 계근기록 조회 API (기간별/거래처별/차량별/상태별) — 이미 만들어 둔
-  인덱스(`first_weighed_at`, `partner_name`, `vehicle_no_norm`, 진행 중
-  건 부분 인덱스)가 이 조회 패턴을 뒷받침한다.
+- ~~계근기록 조회 API~~ — **2단계에서 완료.** [documents/weighing-query-api.md](weighing-query-api.md) 참고.
 - 등록·정정·취소 서비스 계층과 최소한의 인증
 - `weighing_record_history`에 작업자·사유·승인자 컬럼 추가
 - 거래처/품목/차량 마스터 테이블과 점진적 이관(문자열 → `*_id` FK)
