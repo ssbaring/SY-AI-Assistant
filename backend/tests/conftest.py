@@ -47,6 +47,21 @@ def test_database():
             conn.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(url.database)))
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _dispose_engine_at_session_end():
+    """세션이 끝날 때 app.core.database.engine의 커넥션 풀을 정리한다.
+
+    SQLAlchemy Session.close()는 커넥션을 풀에 반납할 뿐 실제로 닫지
+    않는다. engine을 dispose하지 않으면 풀에 남은 psycopg 커넥션이
+    인터프리터 종료 시 GC로 정리되며 ResourceWarning을 낸다.
+    """
+
+    yield
+    from app.core.database import engine
+
+    engine.dispose()
+
+
 @pytest.fixture
 def client():
     from app.main import app
