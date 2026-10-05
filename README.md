@@ -7,8 +7,10 @@
 - **0단계 (부트스트랩) 완료** — 백엔드 프로젝트 뼈대(FastAPI, DB 연결), 로컬 개발 DB(Docker PostgreSQL), 헬스체크 테스트.
 - **1단계 (계근기록 스키마·마이그레이션) 완료** — `weighing_records`/`weighing_record_history` 테이블, 계근번호 자동 채번, 삭제 금지·취소 후 불변 트리거. 자세한 내용은 [documents/weighing-record-schema.md](documents/weighing-record-schema.md) 참고.
 - **2단계 (계근기록 조회 API) 완료** — `GET /api/v1/weighing-records` 목록/상세 조회 3종. 자세한 내용은 [documents/weighing-query-api.md](documents/weighing-query-api.md) 참고.
-- 전체 pytest **73개 통과**.
-- **다음 단계**: 3단계 — OpenClaw 도구 연결(factory-operations 비서가 조회 API를 호출하도록 연결).
+- 백엔드 pytest **73개 통과**.
+- **3단계 (OpenClaw 도구 연결) 진행 중** — 자세한 내용은 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md) 참고.
+  - 완료: 조회 API 3종을 호출하는 stdio MCP 서버 `factory-api`(`openclaw/mcp-servers/factory-api/`) 구현과 자동 테스트(단위, 실제 stdio MCP 프로토콜, 실제 backend 연동).
+  - **미완료**: 실제 OpenClaw 연결. 온보딩·모델 인증, MCP 서버 등록, factory-operations 비서 등록과 권한 정책 적용, 실제 비서 대화 검증은 아직 하지 않았다.
 
 ## 사전 준비 상태 (이 PC 기준)
 
@@ -18,8 +20,10 @@
 | 운영·개발 의존성 (`requirements.txt`, `requirements-dev.txt`) | 구성 완료 (운영 의존성은 버전 고정) |
 | Git | 설치됨 |
 | Docker Desktop / PostgreSQL 16 컨테이너 | 구성 완료 (`127.0.0.1:5432`에서만 접속) |
-| pytest | 73개 통과 |
+| 백엔드 pytest | 73개 통과 |
 | 0~2단계 | 완료 |
+| MCP 서버 전용 가상환경 (`openclaw/mcp-servers/factory-api/.venv`, Python 3.12.10) | 구성 완료 (backend 환경과 분리) |
+| OpenClaw 2026.9.8 (Windows 네이티브, Node.js v24.19.0) | CLI만 설치됨. 온보딩·Gateway·비서 등록은 하지 않음 |
 
 ## PostgreSQL 준비 (Docker 방식, 사용자 직접 설치 필요)
 
@@ -81,6 +85,13 @@ cd backend
 .venv\Scripts\python -m pytest
 ```
 
+MCP 서버 테스트는 별도 가상환경에서 실행한다. 단위·프로토콜 테스트는 DB 없이 돌고, 연동 테스트(`test_e2e_backend.py`)만 backend 가상환경과 테스트 DB를 쓴다. PostgreSQL 컨테이너가 꺼져 있으면 연동 테스트는 건너뛰므로 `-rs`로 건너뛴 항목이 없는지 확인한다.
+
+```powershell
+cd openclaw\mcp-servers\factory-api
+.venv\Scripts\python -m pytest -rs
+```
+
 ## 다음 단계
 
-3단계(OpenClaw 도구 연결)로 진행한다.
+3단계의 남은 작업인 실제 OpenClaw 연결을 진행한다: 온보딩과 모델 인증, `factory-api` MCP 서버 등록, factory-operations 비서 등록과 권한 정책 적용, 실제 비서 대화 검증. 절차는 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md)에 있다. coordinator 연결과 API 인증은 그 뒤 단계다.
