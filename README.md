@@ -8,9 +8,12 @@
 - **1단계 (계근기록 스키마·마이그레이션) 완료** — `weighing_records`/`weighing_record_history` 테이블, 계근번호 자동 채번, 삭제 금지·취소 후 불변 트리거. 자세한 내용은 [documents/weighing-record-schema.md](documents/weighing-record-schema.md) 참고.
 - **2단계 (계근기록 조회 API) 완료** — `GET /api/v1/weighing-records` 목록/상세 조회 3종. 자세한 내용은 [documents/weighing-query-api.md](documents/weighing-query-api.md) 참고.
 - 백엔드 pytest **73개 통과**.
-- **3단계 (OpenClaw 도구 연결) 진행 중** — 자세한 내용은 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md) 참고.
-  - 완료: 조회 API 3종을 호출하는 stdio MCP 서버 `factory-api`(`openclaw/mcp-servers/factory-api/`) 구현과 자동 테스트(단위, 실제 stdio MCP 프로토콜, 실제 backend 연동).
-  - **미완료**: 실제 OpenClaw 연결. 온보딩·모델 인증, MCP 서버 등록, factory-operations 비서 등록과 권한 정책 적용, 실제 비서 대화 검증은 아직 하지 않았다.
+- **3단계 (OpenClaw 도구 연결) — 로컬 읽기 전용 연결 MVP 검증 완료.** 한 대의 개발 PC와 비어 있는 개발 DB 기준이며, 회사 운영 배포나 전체 보안 검증이 끝난 것은 아니다. 자세한 내용은 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md) 참고.
+  - 구현과 자동 검증: 조회 API 3종을 호출하는 stdio MCP 서버 `factory-api`(`openclaw/mcp-servers/factory-api/`). MCP 테스트 **182개 통과**(실제 테스트 DB 연동 검증 포함).
+  - 실제 OpenClaw 연결: MCP 서버와 factory-operations 비서를 등록하고 실제 대화로 확인했다. 목록 조회 200·0건, 계근번호 상세 404, ID 상세 404, 합계 요청에는 기능 한계를 안내하고 임의로 계산하지 않음, main은 MCP 도구가 차단되고 업무 도구 호출 0회.
+  - 도구 노출 방식: factory-operations는 Code Mode를 끄고 Tool Search를 유지한다. 조회 도구 3개는 직접 노출되지 않고 Tool Search를 거쳐 호출된다. 모델에 전달된 전체 도구 목록은 로그로 직접 확인하지 못했다.
+  - **아직 확인하지 않은 것**: 실제 데이터가 있는 기록의 상세 응답을 비서가 정확히 전달하는지(성공 경로는 자동 연동 테스트로만 검증). 운영 데이터 준비 후 확인한다.
+  - 후속 범위: API 인증, 집계 API, coordinator 연결, main 비서의 권한 축소, 보조 모델·주기 작업의 비용과 데이터 전달 범위 점검.
 
 ## 사전 준비 상태 (이 PC 기준)
 
@@ -23,7 +26,8 @@
 | 백엔드 pytest | 73개 통과 |
 | 0~2단계 | 완료 |
 | MCP 서버 전용 가상환경 (`openclaw/mcp-servers/factory-api/.venv`, Python 3.12.10) | 구성 완료 (backend 환경과 분리) |
-| OpenClaw 2026.9.8 (Windows 네이티브, Node.js v24.19.0) | CLI만 설치됨. 온보딩·Gateway·비서 등록은 하지 않음 |
+| OpenClaw 2026.9.8 (Windows 네이티브, Node.js v24.19.0) | 온보딩 완료. Gateway는 필요할 때 수동 실행(예약 작업 미설치). `factory-api` MCP 서버와 factory-operations 비서 등록됨 |
+| OpenClaw 모델 인증 | Anthropic API 키를 환경변수 참조로 사용. 키는 Gateway를 실행하는 터미널에 매번 직접 입력(저장소·설정 평문에 없음) |
 
 ## PostgreSQL 준비 (Docker 방식, 사용자 직접 설치 필요)
 
@@ -94,4 +98,10 @@ cd openclaw\mcp-servers\factory-api
 
 ## 다음 단계
 
-3단계의 남은 작업인 실제 OpenClaw 연결을 진행한다: 온보딩과 모델 인증, `factory-api` MCP 서버 등록, factory-operations 비서 등록과 권한 정책 적용, 실제 비서 대화 검증. 절차는 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md)에 있다. coordinator 연결과 API 인증은 그 뒤 단계다.
+3단계는 로컬 읽기 전용 연결 MVP 검증까지 마쳤다. 남은 확인과 후속 범위는 다음과 같다. 상세는 [documents/openclaw-factory-tools.md](documents/openclaw-factory-tools.md)의 4.6절과 7절에 있다.
+
+- 운영 데이터가 준비되면 실제 기록의 상세 응답을 비서 대화로 검증한다.
+- API 인증, 집계 API, coordinator 연결.
+- main 비서의 권한(전역 `full` 프로필, Code Mode) 점검.
+- 보조 모델 호출과 주기 작업의 비용, 데이터 전달 범위 점검.
+- OpenClaw 인증 프로필 참조 경로 실패의 원인 확인과 `REF_SHADOWED` 경고 정리.
