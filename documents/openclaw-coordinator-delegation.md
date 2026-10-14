@@ -509,13 +509,18 @@ backend 테스트 73개, MCP 서버 테스트 182개(연동 테스트가 건너�
   과거 요청이 늘어나고 실행마다 입력 규모도 커진다(8절의 관찰). **후속 과제**: 세션
   정리 주기와 방법(주기적 초기화 또는 요청별 분리)을 정한다. 아직 정하지 않았다.
   초기화는 대기 중인 요청이 없을 때만 한다.
+  - 현재(5단계): 초기화 전 확인 6개와 `/new` 정리 방법을 정하고 1회 실행해 확인했다. 정리 시점은
+    운용하며 정한다. [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 5절.
 - 불일치 응답 거부와 내부 대조가 항상 수행되는지는 정상 경로에서 확인되지 않았다(8절). 확인하려면
   의도적으로 불일치를 만드는 시험이나 코드 수준의 강제가 필요하다.
 - 대기 시간을 설정으로 제한하는 방법을 찾지 못했다.
 - 요청 1건에 coordinator와 `factory-operations` 양쪽의 모델 호출이 든다. 3단계에서
   관찰된 보조 모델 호출과 주기 작업의 비용, 데이터 전달 범위 점검은 여전히 후속 대상이다.
+  - 현재(5단계): 주기 작업은 껐다. 보조 모델의 용도와 전달 내용은 확인하지 못했다.
+    [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 3절, 5.3절, 9절.
 - `main`은 전역 `full` 프로필과 Code Mode를 그대로 유지한다. 이번에 막은 것은 다른
   비서로의 교차 접근뿐이다.
+  - 현재(5단계): `main`의 도구를 좁혔다. 전역 `full`은 유지한다. [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 4절.
 - 사용자 입력 창구를 coordinator로 고정하는 설정(기본 비서 변경, 채널 연결)은 하지
   않았다. 지금은 `openclaw agent --agent coordinator …`로 직접 지정해 호출한다.
 - API 인증, 집계 API, 실제 운영 데이터 검증은 후속 범위다.
