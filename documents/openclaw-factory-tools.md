@@ -536,10 +536,16 @@ OpenClaw는 도구 목록을 모델에 그대로 보여주지 않고 간접 호�
 - **`main`의 권한**: `main`은 전역 `tools.profile: "full"`과 Code Mode(자동)를 그대로
   유지한다. 계근 도구는 차단돼 있지만 내장 도구는 넓게 열려 있다. 이번 단계의 권한
   제한은 `factory-operations`에만 적용했다.
+  - 현재(5단계): `main`에 `minimal` 프로필, Code Mode 끔, `gateway`·`presence`·계근 도구 차단을 적용하고
+    실행 기록으로 확인했다. 전역 `full`은 유지한다. [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 4절.
 - **보조 모델 호출**: 비서 대화 중 OpenClaw의 기본 보조 모델(`claude-haiku-4-5`) 호출이
   로그에서 관찰됐다. 용도와 비용, 어떤 내용이 전달되는지는 확인하지 못했다.
+  - 현재(5단계): 새 세션 시작 직후의 호출이 2회 더 관찰됐다. 용도, 비용, 전달 내용은 여전히 확인하지
+    못했다. [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 5.3절, 9절.
 - **주기 작업**: Gateway는 시작할 때 `main`의 heartbeat(30분 간격) 등 주기 작업을
   등록한다. 보조 모델과 주기 작업의 비용, 데이터 전달 범위는 후속 점검 대상이다.
+  - 현재(5단계): heartbeat, Dreaming, 스킬 검토를 껐고 관찰한 시간 동안 자동 실행이 없었다. 앞으로
+    실행되지 않는지는 장기 운용 기록으로 확인할 항목이다. [openclaw-local-operation-stability.md](openclaw-local-operation-stability.md) 3절.
 - **검증 범위**: 한 대의 개발 PC, 비어 있는 개발 DB, 수동 실행 기준이다. 운영 배포,
   다중 사용자, 외부 채널 연결, 전체 보안 검증은 하지 않았다.
 - **API 인증 없음**: 조회 API에 인증이 없다. 이번 단계는 `127.0.0.1` 전용 로컬
